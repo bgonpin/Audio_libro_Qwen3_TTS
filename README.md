@@ -12,9 +12,13 @@ Una potente herramienta de escritorio para convertir libros y textos en audio de
 
 - **📖 Entrada Flexible**: Procesa archivos de texto completo (`.txt`, `.md`) o simplemente pega texto directamente en la pestaña dedicada.
 - **🔊 Voces de Alta Calidad**:
-  - **CustomVoice**: Elige entre 9 voces predefinidas premium (Vivian, Ryan, Aiden, Eric, Serena, etc.).
+  - **CustomVoice**: Elige entre 9 voces predefinidas premium (Vivian, Ryan, Aiden, Eric, Serena, Celia, Phoebe, Zane, George).
   - **VoiceDesign**: Define tu propia voz mediante una descripción textual (ej: "A deep, resonant male voice, narrator style").
-- **⚡ Velocidad Variable**: Ajusta el ritmo de la narración con 5 niveles (Muy lento, Lento, Normal, Rápido, Muy rápido).
+  - **VoiceClone**: Clona una voz real a partir de un fragmento de audio de referencia (3-10 segundos).
+- **⚡ Variedad de Modelos**: 
+  - **1.7B (Calidad)**: Máxima fidelidad y expresividad.
+  - **0.6B (Velocidad)**: Generación ultra rápida, ideal para dispositivos con menos recursos.
+- **🏃 Velocidad Variable**: Ajusta el ritmo de la narración con 5 niveles (Muy lento, Lento, Normal, Rápido, Muy rápido).
 - **🧩 Fragmentación Inteligente**: Sistema de división de texto avanzado que respeta oraciones y signos de puntuación para una entonación natural.
 - **🎵 Reproductor Integrado**: Escucha tus audiolibros directamente en la aplicación sin necesidad de software externo.
 - **💾 Exportación Directa**: Genera archivos `.mp3` optimizados con nombres dinámicos basados en la entrada.
@@ -70,9 +74,14 @@ chmod +x run_app.sh
 ### Paso 2: Configuración de Salida
 - Selecciona la **Carpeta de Salida** donde se guardará tu archivo `.mp3`.
 
-### Paso 3: Personalización de Voz
-- En el modo **CustomVoice**, selecciona tu narrador favorito.
-- En el modo **VoiceDesign**, escribe una descripción detallada de cómo quieres que suene la voz.
+### Paso 3: Personalización de Voz y Modelo
+- Selecciona el **Tamaño del Modelo**:
+  - **1.7B**: Para audiolibros donde la calidad es lo más importante.
+  - **0.6B**: Para procesar textos largos en tiempo récord.
+- Selecciona el **Modo**:
+  - **CustomVoice**: Usa narradores predefinidos.
+  - **VoiceDesign**: Diseña una voz desde cero con texto.
+  - **VoiceClone**: Sube un `.wav` o `.mp3` de referencia para clonar una voz específica.
 - Elige el **Idioma** (se recomienda "auto" para detección automática) y la **Velocidad**.
 
 ### Paso 4: Generación

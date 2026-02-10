@@ -48,15 +48,26 @@ class AudiobookApp(MainWindow):
             return
 
         mode = self.mode_combo.currentText()
+        size = "1.7B" if "1.7B" in self.size_combo.currentText() else "0.6B"
+        
+        clone_audio = None
+        if mode == "VoiceClone":
+            clone_audio = self.clone_audio_path.text()
+            if not clone_audio or not os.path.exists(clone_audio):
+                QMessageBox.warning(self, "Error", "Por favor selecciona un archivo de audio de referencia para la clonación.")
+                return
+
         config = {
             "speaker": self.speaker_combo.currentText(),
             "language": self.lang_combo.currentText(),
             "speed": self.speed_combo.currentText(),
-            "instruct": self.prompt_input.text() if mode == "VoiceDesign" else ""
+            "instruct": self.prompt_input.text() if mode == "VoiceDesign" else "",
+            "size": size,
+            "clone_audio": clone_audio
         }
 
         self.btn_start.setEnabled(False)
-        self.log("--- Iniciando proceso ---")
+        self.log(f"--- Iniciando proceso ({size}, {mode}) ---")
         
         self.worker = TTSWorker(input_path, output_dir, mode, config, direct_text=direct_text)
         self.worker.progress.connect(self.update_progress)

@@ -89,13 +89,17 @@ class MainWindow(QMainWindow):
         config_layout = QFormLayout(config_group)
         
         self.mode_combo = QComboBox()
-        self.mode_combo.addItems(["CustomVoice", "VoiceDesign"])
+        self.mode_combo.addItems(["CustomVoice", "VoiceDesign", "VoiceClone"])
         self.mode_combo.currentIndexChanged.connect(self.toggle_mode_ui)
         config_layout.addRow("Modo:", self.mode_combo)
         
+        self.size_combo = QComboBox()
+        self.size_combo.addItems(["1.7B (Calidad)", "0.6B (Velocidad)"])
+        config_layout.addRow("Tamaño de Modelo:", self.size_combo)
+        
         # CustomVoice controls
         self.speaker_combo = QComboBox()
-        self.speaker_combo.addItems(["Vivian", "Ryan", "Aiden", "Eric", "Serena"])
+        self.speaker_combo.addItems(["Vivian", "Ryan", "Aiden", "Eric", "Serena", "Celia", "Phoebe", "Zane", "George"])
         self.speaker_row_label = QLabel("Hablante:")
         config_layout.addRow(self.speaker_row_label, self.speaker_combo)
         
@@ -106,6 +110,23 @@ class MainWindow(QMainWindow):
         self.prompt_row_label = QLabel("Descripción de voz:")
         self.prompt_row_label.setVisible(False)
         config_layout.addRow(self.prompt_row_label, self.prompt_input)
+        
+        # VoiceClone controls
+        self.clone_audio_path = QLineEdit()
+        self.clone_audio_path.setPlaceholderText("Selecciona audio de referencia (3-10s)...")
+        self.btn_browse_clone = QPushButton("Explorar")
+        self.btn_browse_clone.clicked.connect(self.browse_clone_audio)
+        self.clone_audio_layout = QHBoxLayout()
+        self.clone_audio_layout.addWidget(self.clone_audio_path)
+        self.clone_audio_layout.addWidget(self.btn_browse_clone)
+        
+        self.clone_row_label = QLabel("Audio de referencia:")
+        self.clone_audio_widget = QWidget()
+        self.clone_audio_widget.setLayout(self.clone_audio_layout)
+        
+        self.clone_row_label.setVisible(False)
+        self.clone_audio_widget.setVisible(False)
+        config_layout.addRow(self.clone_row_label, self.clone_audio_widget)
         
         self.lang_combo = QComboBox()
         self.lang_combo.addItems(["auto", "english", "chinese", "spanish", "japanese", "french", "german", "italian", "korean", "portuguese", "russian"])
@@ -187,15 +208,31 @@ class MainWindow(QMainWindow):
         if dir_path:
             self.output_dir_path.setText(dir_path)
 
+    def browse_clone_audio(self):
+        """
+        Opens a file dialog to select a reference audio file for voice cloning.
+        """
+        file_path, _ = QFileDialog.getOpenFileName(self, "Seleccionar audio de referencia", "", "Archivos de audio (*.wav *.mp3 *.flac);;Todos los archivos (*)")
+        if file_path:
+            self.clone_audio_path.setText(file_path)
+
     def toggle_mode_ui(self):
         """
-        Updates the UI to show/hide controls based on the selected TTS mode (CustomVoice/VoiceDesign).
+        Updates the UI to show/hide controls based on the selected TTS mode (CustomVoice/VoiceDesign/VoiceClone).
         """
-        is_voice_design = self.mode_combo.currentText() == "VoiceDesign"
-        self.speaker_combo.setVisible(not is_voice_design)
-        self.speaker_row_label.setVisible(not is_voice_design)
-        self.prompt_input.setVisible(is_voice_design)
-        self.prompt_row_label.setVisible(is_voice_design)
+        mode = self.mode_combo.currentText()
+        is_custom = mode == "CustomVoice"
+        is_design = mode == "VoiceDesign"
+        is_clone = mode == "VoiceClone"
+        
+        self.speaker_combo.setVisible(is_custom)
+        self.speaker_row_label.setVisible(is_custom)
+        
+        self.prompt_input.setVisible(is_design)
+        self.prompt_row_label.setVisible(is_design)
+        
+        self.clone_row_label.setVisible(is_clone)
+        self.clone_audio_widget.setVisible(is_clone)
 
     def log(self, message):
         """

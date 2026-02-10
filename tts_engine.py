@@ -48,16 +48,29 @@ class TTSWorker(QThread):
     def run(self):
         """
         Main execution loop for the worker thread.
-        Loads the model, processes text chunks, generates audio, and saves the final MP3.
+        Loads the model based on selected size and mode, processes text chunks, 
+        generates audio, and saves the final MP3.
         """
         try:
             if Qwen3TTSModel is None:
                 self.error.emit("Librería qwen-tts no encontrada.")
                 return
 
-            self.log.emit(f"Cargando modelo {self.mode}...")
+            size = self.config.get("size", "1.7B")
+            mode = self.mode
             
-            model_id = "Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice" if self.mode == "CustomVoice" else "Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign"
+            # Model mapping based on size and mode
+            if mode == "VoiceClone":
+                model_id = f"Qwen/Qwen3-TTS-12Hz-{size}-Base"
+            elif mode == "VoiceDesign" and size == "0.6B":
+                # For 0.6B, VoiceDesign is part of CustomVoice model capabilities
+                model_id = "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice"
+            elif mode == "VoiceDesign":
+                model_id = "Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign"
+            else: # CustomVoice
+                model_id = f"Qwen/Qwen3-TTS-12Hz-{size}-CustomVoice"
+
+            self.log.emit(f"Cargando modelo {model_id}...")
             
             # Check for flash_attn availability
             has_flash_attn = False
@@ -109,6 +122,7 @@ class TTSWorker(QThread):
 
             all_audio = []
             sample_rate = 24000
+            clone_audio_path = self.config.get("clone_audio")
 
             for i, chunk in enumerate(chunks):
                 if not self.is_running:
@@ -116,17 +130,23 @@ class TTSWorker(QThread):
                 
                 self.log.emit(f"Procesando fragmento {i+1}/{len(chunks)}...")
                 
-                if self.mode == "CustomVoice":
+                if mode == "CustomVoice":
                     audio, sr = self.model.generate_custom_voice(
                         text=chunk,
                         speaker=self.config.get("speaker", "Vivian"),
                         language=self.config.get("language", "auto"),
                         instruct=full_instruct
                     )
-                else: # VoiceDesign
+                elif mode == "VoiceDesign":
                     audio, sr = self.model.generate_voice_design(
                         text=chunk,
                         instruct=full_instruct,
+                        language=self.config.get("language", "auto")
+                    )
+                else: # VoiceClone
+                    audio, sr = self.model.voice_clone(
+                        text=chunk,
+                        reference_audio=clone_audio_path,
                         language=self.config.get("language", "auto")
                     )
                 
